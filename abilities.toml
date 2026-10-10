@@ -1,0 +1,55 @@
+[character]
+name = "Albert"
+player_name = "jag0d"
+race = "High Elf"
+class = "Wizard"
+subclass = "School of Evocation"
+level = 3
+exp = 900
+background = "Sage"
+alignment = "Neutral Good"
+
+title = "Abilities"
+notes = "Press [j/k] or [Up/Down] to inspect each ability. Press [q] or [Esc] to quit."
+
+[[abilities]]
+name = "Strength"
+code = "STR"
+score = 10
+modifier = "+0"
+description = "Athletics, carrying capacity, physical push and pull."
+
+[[abilities]]
+name = "Dexterity"
+code = "DEX"
+score = 14
+modifier = "+2"
+description = "Acrobatics, Sleight of Hand, Stealth, Armor Class bonus, Initiative."
+
+[[abilities]]
+name = "Constitution"
+code = "CON"
+score = 14
+modifier = "+2"
+description = "Hit point maximums, Concentration checks on spells, poison resistance."
+
+[[abilities]]
+name = "Intelligence"
+code = "INT"
+score = 16
+modifier = "+3"
+description = "Arcana, History, Investigation, Nature, Religion. Primary Wizard spellcasting ability!"
+
+[[abilities]]
+name = "Wisdom"
+code = "WIS"
+score = 12
+modifier = "+1"
+description = "Animal Handling, Insight, Medicine, Perception, Survival, Passive Perception (11)."
+
+[[abilities]]
+name = "Charisma"
+code = "CHA"
+score = 8
+modifier = "-1"
+description = "Deception, Intimidation, Performance, Persuasion. A bit eccentric and socially blunt."
