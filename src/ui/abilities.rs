@@ -83,8 +83,8 @@ fn render_abilities(f: &mut Frame, area: Rect, app: &App) {
     let body_chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
-            Constraint::Percentage(50),
-            Constraint::Percentage(50),
+            Constraint::Length(24), // Compact column for "STR: 10 [+0]"
+            Constraint::Min(30),    // Inspector gets all remaining space
         ])
         .split(area);
 
@@ -104,19 +104,13 @@ fn render_abilities(f: &mut Frame, area: Rect, app: &App) {
         let line = Line::from(vec![
             Span::styled(prefix, if is_selected { Style::default().fg(TITLE_FG) } else { Style::default().fg(TEXT_MUTED) }),
             Span::styled(
-                format!("{:3}", ability.code),
+                format!("{}: ", ability.code),
                 Style::default().fg(ACCENT_CYAN).add_modifier(Modifier::BOLD),
             ),
-            Span::raw("  "),
             Span::styled(
-                format!("{:<14}", ability.name),
-                if is_selected { Style::default().fg(Color::White) } else { Style::default().fg(TEXT_PRIMARY) },
+                format!("{:2} ", ability.score),
+                if is_selected { Style::default().fg(Color::White).add_modifier(Modifier::BOLD) } else { Style::default().fg(TEXT_PRIMARY) },
             ),
-            Span::styled(
-                format!("Score: {:2}", ability.score),
-                Style::default().fg(TEXT_MUTED),
-            ),
-            Span::raw("  "),
             Span::styled(
                 format!(" [{:>3}] ", mod_str),
                 Style::default()
