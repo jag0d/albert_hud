@@ -53,7 +53,7 @@ pub struct AbilitiesDoc {
 }
 
 fn default_title() -> String {
-    "Abilities".to_string()
+    "Stats".to_string()
 }
 
 impl AbilitiesDoc {

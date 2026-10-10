@@ -1,16 +1,16 @@
-[character]
-name = "Albert"
-player_name = "jag0d"
-race = "High Elf"
-class = "Wizard"
-subclass = "School of Evocation"
-level = 3
-exp = 900
-background = "Sage"
-alignment = "Neutral Good"
-
-title = "Abilities"
+title = "Stats"
 notes = "Press [j/k] or [Up/Down] to inspect each ability. Press [q] or [Esc] to quit."
+
+[character]
+name = "Albert, brother of Einstein"
+player_name = "jag0d"
+race = "Dwarf"
+class = "Fighter"
+subclass = "Battle Master"
+level = 5
+exp = 0
+background = "Sailor"
+alignment = "Chaotic Neutral"
 
 [[abilities]]
 name = "Strength"
