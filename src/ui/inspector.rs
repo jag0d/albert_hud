@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{App, ActivePanel};
 use ratatui::{
     layout::{Alignment, Rect},
     style::{Color, Modifier, Style},
@@ -15,9 +15,14 @@ const TEXT_MUTED: Color = Color::Rgb(156, 163, 175);
 const ACCENT_GOLD: Color = Color::Rgb(255, 223, 128);
 
 pub fn render(f: &mut Frame, area: Rect, app: &App) {
+    let mut frame_border: BorderType = BorderType::Rounded;
+    if app.active_panel == ActivePanel::Inspector {
+        frame_border = BorderType::Thick;
+    };
+
     let block = Block::default()
         .borders(Borders::ALL)
-        .border_type(BorderType::Rounded)
+        .border_type(frame_border)
         .border_style(Style::default().fg(FRAME_BORDER))
         .style(Style::default().bg(FRAME_BG))
         .title(

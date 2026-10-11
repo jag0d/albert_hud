@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::app::App;
+use crate::app::{ActivePanel, App};
 use ratatui::{
     layout::{Alignment, Rect},
     style::{Color, Modifier, Style},
@@ -30,9 +30,14 @@ pub fn render(f: &mut Frame, area: Rect, app: &App) {
 }
 
 pub fn render_with_selection(f: &mut Frame, area: Rect, _app: &App, selected_index: usize) {
+    let mut frame_border: BorderType = BorderType::Rounded;
+    if _app.active_panel == ActivePanel::Menu {
+        frame_border = BorderType::Thick;
+    };
+    
     let block = Block::default()
         .borders(Borders::ALL)
-        .border_type(BorderType::Rounded)
+        .border_type(frame_border)
         .border_style(Style::default().fg(FRAME_BORDER))
         .style(Style::default().bg(FRAME_BG))
         .title(

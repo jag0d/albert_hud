@@ -42,6 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     KeyCode::Up | KeyCode::Char('k') => app.previous_ability(),
                     KeyCode::Down | KeyCode::Char('j') => app.next_ability(),
+                    KeyCode::Tab => app.next_panel(),
                     _ => {}
                 }
             }
