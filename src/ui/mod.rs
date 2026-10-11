@@ -1,6 +1,7 @@
 pub mod footer;
 pub mod header;
 pub mod inspector;
+pub mod menu;
 pub mod stats;
 
 use crate::app::App;
@@ -48,6 +49,7 @@ pub fn render(f: &mut Frame, app: &App) {
         .split(h_chunks[0]);
     
     stats::render(f, stat_col[0], app);
+    menu::render(f, stat_col[1], app);
     inspector::render(f, h_chunks[1], app);
 
     // 3. Footer
