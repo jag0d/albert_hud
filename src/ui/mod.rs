@@ -37,8 +37,17 @@ pub fn render(f: &mut Frame, app: &App) {
             Constraint::Min(30),    // INSPECTOR panel (takes all remaining space)
         ])
         .split(v_chunks[1]);
-
-    stats::render(f, h_chunks[0], app);
+    
+    //2.1 Middle: Vertical split to determine height of STATS column
+    let stat_col = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(14),
+            Constraint::Min(0),
+        ])
+        .split(h_chunks[0]);
+    
+    stats::render(f, stat_col[0], app);
     inspector::render(f, h_chunks[1], app);
 
     // 3. Footer
