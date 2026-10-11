@@ -30,9 +30,10 @@ pub fn render(f: &mut Frame, area: Rect, app: &App) {
 }
 
 pub fn render_with_selection(f: &mut Frame, area: Rect, _app: &App, selected_index: usize) {
-    let mut frame_border: BorderType = BorderType::Rounded;
-    if _app.active_panel == ActivePanel::Menu {
-        frame_border = BorderType::Thick;
+    let frame_border = if _app.active_panel == ActivePanel::Menu {
+        BorderType::Thick
+    } else {
+        BorderType::Rounded
     };
     
     let block = Block::default()

@@ -17,9 +17,10 @@ const TEXT_MUTED: Color = Color::Rgb(156, 163, 175);
 const ACCENT_CYAN: Color = Color::Rgb(56, 189, 248);
 
 pub fn render(f: &mut Frame, area: Rect, app: &App) {
-    let mut frame_border: BorderType = BorderType::Rounded;
-    if app.active_panel == ActivePanel::Stats {
-        frame_border = BorderType::Thick;
+    let frame_border = if app.active_panel == ActivePanel::Stats {
+        BorderType::Thick
+    } else {
+        BorderType::Rounded
     };
 
     let block = Block::default()

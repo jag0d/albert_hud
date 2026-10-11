@@ -15,9 +15,10 @@ const TEXT_MUTED: Color = Color::Rgb(156, 163, 175);
 const ACCENT_GOLD: Color = Color::Rgb(255, 223, 128);
 
 pub fn render(f: &mut Frame, area: Rect, app: &App) {
-    let mut frame_border: BorderType = BorderType::Rounded;
-    if app.active_panel == ActivePanel::Inspector {
-        frame_border = BorderType::Thick;
+    let frame_border = if app.active_panel == ActivePanel::Inspector {
+        BorderType::Thick
+    } else {
+        BorderType::Rounded
     };
 
     let block = Block::default()

@@ -1,4 +1,4 @@
-use crate::{app::ActivePanel::Stats, model::ability::{AbilitiesDoc, AbilityEntry}};
+use crate::{model::ability::{AbilitiesDoc, AbilityEntry}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ActivePanel {
@@ -30,7 +30,7 @@ impl App {
             running: true,
             abilities_doc,
             selected_index: 0,
-            active_panel: Stats,
+            active_panel: ActivePanel::Stats,
         }
     }
 
