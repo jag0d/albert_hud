@@ -40,9 +40,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
                         app.quit()
                     }
-                    KeyCode::Up | KeyCode::Char('k') => app.previous_ability(),
-                    KeyCode::Down | KeyCode::Char('j') => app.next_ability(),
                     KeyCode::Tab => app.next_panel(),
+                    KeyCode::Up | KeyCode::Char('k') => app.navigate_previous(),
+                    KeyCode::Down | KeyCode::Char('j') => app.navigate_next(),
                     _ => {}
                 }
             }

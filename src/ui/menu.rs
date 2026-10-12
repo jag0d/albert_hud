@@ -24,9 +24,7 @@ pub const MENU_ITEMS: &[&str] = &[
 ];
 
 pub fn render(f: &mut Frame, area: Rect, app: &App) {
-    // Currently hardcoded to 0 for initial preview until selection state is added to App
-    let selected_index = 0;
-    render_with_selection(f, area, app, selected_index);
+    render_with_selection(f, area, app, app.selected_menu_item());
 }
 
 pub fn render_with_selection(f: &mut Frame, area: Rect, _app: &App, selected_index: usize) {
