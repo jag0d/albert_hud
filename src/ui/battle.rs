@@ -60,9 +60,10 @@ pub fn render(f: &mut Frame, area: Rect, app: &App) {
 
     let subpanels = [
         ("Armor Class", format!("{}", combat.armor_class)),
-        ("Initiative", combat.initiative_display()),
-        ("Speed", combat.speed_display()),
         ("Hit Points", combat.hp_display()),
+        ("Speed", combat.speed_display()),
+        ("Initiative", combat.initiative_display()),
+        
     ];
 
     for (i, (title, value)) in subpanels.iter().enumerate() {
