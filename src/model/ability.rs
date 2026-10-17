@@ -37,11 +37,14 @@ impl AbilityEntry {
 }
 
 use crate::model::character::CharacterInfo;
+use crate::model::combat::CombatStats;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AbilitiesDoc {
     #[serde(default)]
     pub character: CharacterInfo,
+    #[serde(default)]
+    pub combat: CombatStats,
     #[serde(default = "default_title")]
     pub title: String,
     #[serde(default)]
@@ -71,6 +74,7 @@ impl AbilitiesDoc {
         }
         Self::load_from_str(Self::DEFAULT_TOML).unwrap_or_else(|_| Self {
             character: CharacterInfo::default(),
+            combat: CombatStats::default(),
             title: "Abilities".to_string(),
             description: "Default Ability Scores".to_string(),
             notes: None,

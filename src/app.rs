@@ -4,15 +4,17 @@ use crate::{model::{ability::{AbilitiesDoc, AbilityEntry}}, ui};
 pub enum ActivePanel {
     Stats,
     Menu,
-    Inspector, 
+    Inspector,
+    InBattle,
 }
 
 impl ActivePanel {
     pub fn next(&self) -> Self {
         match self {
-            Self::Inspector => Self::Stats,
             Self::Stats => Self::Menu,
             Self::Menu => Self::Inspector,
+            Self::Inspector => Self::InBattle,
+            Self::InBattle => Self::Stats,
         }
     }
 }
@@ -23,6 +25,7 @@ pub struct App {
     pub selected_index: usize,
     pub active_panel: ActivePanel,
     pub selected_menu_index: usize,
+    pub selected_battle_index: usize,
 }
 
 impl App {
@@ -33,6 +36,7 @@ impl App {
             selected_index: 0,
             active_panel: ActivePanel::Stats,
             selected_menu_index: 0,
+            selected_battle_index: 0,
         }
     }
 
@@ -92,6 +96,28 @@ impl App {
         self.selected_menu_index
     }
 
+    pub const BATTLE_STATS_COUNT: usize = 4;
+
+    pub fn next_battle_stat(&mut self) {
+        if self.selected_battle_index + 1 >= Self::BATTLE_STATS_COUNT {
+            self.selected_battle_index = 0;
+        } else {
+            self.selected_battle_index += 1;
+        }
+    }
+
+    pub fn previous_battle_stat(&mut self) {
+        if self.selected_battle_index == 0 {
+            self.selected_battle_index = Self::BATTLE_STATS_COUNT - 1;
+        } else {
+            self.selected_battle_index -= 1;
+        }
+    }
+
+    pub fn selected_battle_stat(&self) -> usize {
+        self.selected_battle_index
+    }
+
     pub fn scroll_inspector(&mut self) {
         //only a placeholder until implemented
         self.next_ability();
@@ -106,6 +132,7 @@ impl App {
             ActivePanel::Stats => self.next_ability(),
             ActivePanel::Menu => self.next_menu_item(),
             ActivePanel::Inspector => self.scroll_inspector(),
+            ActivePanel::InBattle => self.next_battle_stat(),
         }
     }
 
@@ -114,6 +141,7 @@ impl App {
             ActivePanel::Stats => self.previous_ability(),
             ActivePanel::Menu => self.previous_menu_item(),
             ActivePanel::Inspector => self.scroll_inspector(),
+            ActivePanel::InBattle => self.previous_battle_stat(),
         }
     }
 }

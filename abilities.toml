@@ -12,6 +12,14 @@ exp = 0
 background = "Sailor"
 alignment = "Chaotic Neutral"
 
+[combat]
+armor_class = 18
+initiative = 2
+speed = 25
+hp_current = 44
+hp_max = 44
+hp_temp = 0
+
 [[abilities]]
 name = "Strength"
 code = "STR"
