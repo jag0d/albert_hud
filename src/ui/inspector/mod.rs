@@ -40,7 +40,12 @@ pub fn render(f: &mut Frame, area: Rect, app: &App) {
         .title_alignment(Alignment::Center)
         .padding(Padding::uniform(1));
 
-    let view = match app.active_panel {
+    let target_panel = match app.active_panel {
+        ActivePanel::Inspector => app.prev_active_panel,
+        other => other,
+    };
+
+    let view = match target_panel {
         ActivePanel::InBattle => build_battle_view(app),
         ActivePanel::Menu => build_menu_view(app),
         _ => build_ability_view(app),

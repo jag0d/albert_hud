@@ -11,6 +11,8 @@ use model::ability::AbilitiesDoc;
 use std::path::Path;
 use std::time::Duration;
 
+use crate::app::ActivePanel;
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Install panic hook to restore terminal cleanly on crash
     tui::install_hooks()?;
@@ -43,6 +45,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     KeyCode::Tab => app.next_panel(),
                     KeyCode::Up | KeyCode::Char('k') => app.navigate_previous(),
                     KeyCode::Down | KeyCode::Char('j') => app.navigate_next(),
+                    KeyCode::Enter => { if app.active_panel != ActivePanel::Inspector { app.navigate_inspector(); } },
                     _ => {}
                 }
             }
