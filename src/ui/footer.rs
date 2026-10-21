@@ -12,11 +12,19 @@ const TITLE_FG: Color = Color::Rgb(255, 223, 128);
 const TEXT_MUTED: Color = Color::Rgb(156, 163, 175);
 
 pub fn render(f: &mut Frame, area: Rect, app: &App) {
-    let notes = app
-        .abilities_doc
-        .notes
-        .as_deref()
-        .unwrap_or("[q / Esc] Quit  |  [↑/k] Prev  |  [↓/j] Next");
+    let (controls_label, notes_text) = match app.input_mode {
+        crate::app::InputMode::Editing { .. } => (
+            "Edit Mode: ",
+            "[0-9] Type value  |  [Backspace] Delete  |  [Enter] Confirm & Save  |  [Esc] Cancel",
+        ),
+        crate::app::InputMode::Normal => (
+            "Controls: ",
+            app.abilities_doc
+                .notes
+                .as_deref()
+                .unwrap_or("[q / Esc] Quit  |  [↑/k] Prev  |  [↓/j] Next"),
+        ),
+    };
 
     let footer_block = Block::default()
         .borders(Borders::TOP)
@@ -24,8 +32,8 @@ pub fn render(f: &mut Frame, area: Rect, app: &App) {
         .style(Style::default().bg(FRAME_BG));
 
     let footer_text = Line::from(vec![
-        Span::styled("Controls: ", Style::default().fg(TITLE_FG).add_modifier(Modifier::BOLD)),
-        Span::styled(notes, Style::default().fg(TEXT_MUTED)),
+        Span::styled(controls_label, Style::default().fg(TITLE_FG).add_modifier(Modifier::BOLD)),
+        Span::styled(notes_text, Style::default().fg(TEXT_MUTED)),
     ]);
 
     let footer_widget = Paragraph::new(footer_text)
