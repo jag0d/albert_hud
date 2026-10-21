@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let abilities_doc = AbilitiesDoc::load_from_file_or_default(toml_path);
 
     // Initialize application state
-    let mut app = App::new(abilities_doc);
+    let mut app = App::new(abilities_doc, toml_path);
 
     // Initialize terminal
     let mut terminal = tui::init()?;

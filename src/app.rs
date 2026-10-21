@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use crate::{model::{ability::{AbilitiesDoc, AbilityEntry}}, ui};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -31,10 +32,11 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(abilities_doc: AbilitiesDoc) -> Self {
+    pub fn new(abilities_doc: AbilitiesDoc, file_path: impl Into<PathBuf>) -> Self {
         Self {
             running: true,
             abilities_doc,
+            file_path: file_path.into(),
             selected_index: 0,
             active_panel: ActivePanel::Stats,
             prev_active_panel: ActivePanel::Stats,
@@ -108,6 +110,9 @@ impl App {
             ActivePanel::Menu => 1,
             _ => 0,
         }
+    }
+    pub fn save_to_file(&self) -> Result<(), Box<dyn std::error::Error>> {
+        self.abilities_doc.save_to_file(&self.file_path)
     }
 
     pub fn next_inspector_action(&mut self) {

@@ -81,4 +81,12 @@ impl AbilitiesDoc {
             abilities: Vec::new(),
         })
     }
+
+    pub fn save_to_file(&self, path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+        let toml_str = toml::to_string_pretty(self)?;
+        std::fs::write(path, toml_str)?;
+        Ok(())
+    }
+}
+
 }
