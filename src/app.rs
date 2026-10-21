@@ -1,6 +1,19 @@
 use std::path::PathBuf;
 use crate::{model::{ability::{AbilitiesDoc, AbilityEntry}}, ui};
 
+#[allow(dead_code)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EditableField {
+    AbilityScore(usize),
+    ArmorClass,
+    Initiative,
+    Speed,
+    HpCurrent,
+    HpMax,
+    HpTemp,
+}
+
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ActivePanel {
     Stats,
@@ -23,12 +36,14 @@ impl ActivePanel {
 pub struct App {
     pub running: bool,
     pub abilities_doc: AbilitiesDoc,
+    pub file_path: PathBuf,
     pub selected_index: usize,
     pub active_panel: ActivePanel,
     pub prev_active_panel: ActivePanel,
     pub selected_menu_index: usize,
     pub selected_battle_index: usize,
     pub selected_inspector_action: usize,
+    pub input_mode: InputMode,
 }
 
 impl App {
@@ -43,6 +58,7 @@ impl App {
             selected_menu_index: 0,
             selected_battle_index: 0,
             selected_inspector_action: 0,
+            input_mode: InputMode::Normal,
         }
     }
 
@@ -102,7 +118,7 @@ impl App {
             other => other,
         };
         match target_panel {
-            ActivePanel::Stats => 2,
+            ActivePanel::Stats => 3, // Roll Check, Saving Throw, Change Base Score
             ActivePanel::InBattle => match self.selected_battle_index {
                 3 => 2, // Hit Points: Take Damage, Heal
                 _ => 1,
