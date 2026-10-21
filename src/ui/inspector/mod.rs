@@ -51,7 +51,15 @@ pub fn render(f: &mut Frame, area: Rect, app: &App) {
         _ => build_ability_view(app),
     };
 
-    if let Some(view) = view {
+    if let Some(ref mut view) = view {
+        if let crate::app::InputMode::Editing { field, buffer } = &app.input_mode {
+            if field.matches(target_panel, app) {
+                view.editor = Some(components::InlineEditor {
+                    label: field.label(&app.abilities_doc),
+                    buffer: buffer.clone(),
+                });
+            }
+        }
         let lines = view.to_lines();
         let paragraph = Paragraph::new(lines)
             .block(block)
@@ -82,6 +90,10 @@ fn build_ability_view(app: &App) -> Option<InspectorView> {
         .action(
             format!("🛡 Roll Saving Throw (1d20 {})", mod_str),
             is_focused && sel == 1,
+        )
+        .action(
+            "✏ Change Base Score",
+            is_focused && sel == 2,
         )
         .section("Rules & Usage:", &ability.description);
 
