@@ -26,6 +26,13 @@ pub struct ActionButton {
     pub is_focused: bool,
 }
 
+/// An inline editor state for modifying numerical stats
+#[derive(Debug, Clone)]
+pub struct InlineEditor {
+    pub label: String,
+    pub buffer: String,
+}
+
 /// A titled text block (e.g., "Rules & Usage:", "Lore:")
 #[derive(Debug, Clone)]
 pub struct InspectorSection {
@@ -41,6 +48,7 @@ pub struct InspectorView {
     pub stats: Vec<StatItem>,
     pub tags: Vec<String>,
     pub action_rows: Vec<Vec<ActionButton>>,
+    pub editor: Option<InlineEditor>,
     pub sections: Vec<InspectorSection>,
 }
 
@@ -53,6 +61,7 @@ impl InspectorView {
             stats: Vec::new(),
             tags: Vec::new(),
             action_rows: Vec::new(),
+            editor: None,
             sections: Vec::new(),
         }
     }
@@ -106,6 +115,14 @@ impl InspectorView {
             })
             .collect();
         self.action_rows.push(row);
+        self
+    }
+
+    pub fn editor(mut self, label: impl Into<String>, buffer: impl Into<String>) -> Self {
+        self.editor = Some(InlineEditor {
+            label: label.into(),
+            buffer: buffer.into(),
+        });
         self
     }
 
@@ -182,8 +199,25 @@ impl InspectorView {
             lines.push(Line::from(""));
         }
 
-        // 4. Interactive Action Buttons
-        if !self.action_rows.is_empty() {
+        // 4. Interactive Action Buttons / Inline Editor
+        if let Some(ref editor) = self.editor {
+            lines.push(Line::from(Span::styled(
+                format!("Editing {}:", editor.label),
+                Style::default().fg(ACCENT_YELLOW).add_modifier(Modifier::BOLD),
+            )));
+            lines.push(Line::from(vec![
+                Span::styled(" ▶ [ ", Style::default().fg(ACCENT_YELLOW).add_modifier(Modifier::BOLD)),
+                Span::styled(
+                    editor.buffer.clone(),
+                    Style::default().fg(TITLE_FG).add_modifier(Modifier::BOLD),
+                ),
+                Span::styled("█", Style::default().fg(ACCENT_CYAN)),
+                Span::styled(" ]", Style::default().fg(ACCENT_YELLOW).add_modifier(Modifier::BOLD)),
+                Span::raw("   "),
+                Span::styled("(↵ Save  |  Esc Cancel)", Style::default().fg(TEXT_MUTED)),
+            ]));
+            lines.push(Line::from(""));
+        } else if !self.action_rows.is_empty() {
             lines.push(Line::from(Span::styled(
                 "Actions:",
                 Style::default().fg(TEXT_MUTED),

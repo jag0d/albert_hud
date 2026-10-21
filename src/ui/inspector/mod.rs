@@ -45,7 +45,7 @@ pub fn render(f: &mut Frame, area: Rect, app: &App) {
         other => other,
     };
 
-    let view = match target_panel {
+    let mut view = match target_panel {
         ActivePanel::InBattle => build_battle_view(app),
         ActivePanel::Menu => build_menu_view(app),
         _ => build_ability_view(app),
