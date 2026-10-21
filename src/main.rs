@@ -38,13 +38,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Event::Key(key_event) => {
                 match key_event.code {
                     KeyCode::Char('q') => app.quit(),
-                    KeyCode::Esc => app.quit(),
+                    KeyCode::Esc => {
+                        if app.active_panel == ActivePanel::Inspector {
+                            app.active_panel = app.prev_active_panel;
+                        } else {
+                            app.quit();
+                        }
+                    }
                     KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
                         app.quit()
                     }
                     KeyCode::Tab => app.next_panel(),
                     KeyCode::Up | KeyCode::Char('k') => app.navigate_previous(),
                     KeyCode::Down | KeyCode::Char('j') => app.navigate_next(),
+                    KeyCode::Left | KeyCode::Char('h') => app.navigate_left(),
+                    KeyCode::Right | KeyCode::Char('l') => app.navigate_right(),
                     KeyCode::Enter => { if app.active_panel != ActivePanel::Inspector { app.navigate_inspector(); } },
                     _ => {}
                 }

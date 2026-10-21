@@ -40,7 +40,7 @@ pub struct InspectorView {
     pub badge: Option<String>,
     pub stats: Vec<StatItem>,
     pub tags: Vec<String>,
-    pub actions: Vec<ActionButton>,
+    pub action_rows: Vec<Vec<ActionButton>>,
     pub sections: Vec<InspectorSection>,
 }
 
@@ -52,7 +52,7 @@ impl InspectorView {
             badge: None,
             stats: Vec::new(),
             tags: Vec::new(),
-            actions: Vec::new(),
+            action_rows: Vec::new(),
             sections: Vec::new(),
         }
     }
@@ -86,10 +86,26 @@ impl InspectorView {
     }
 
     pub fn action(mut self, label: impl Into<String>, is_focused: bool) -> Self {
-        self.actions.push(ActionButton {
+        self.action_rows.push(vec![ActionButton {
             label: label.into(),
             is_focused,
-        });
+        }]);
+        self
+    }
+
+    pub fn action_row<I, S>(mut self, buttons: I) -> Self
+    where
+        I: IntoIterator<Item = (S, bool)>,
+        S: Into<String>,
+    {
+        let row = buttons
+            .into_iter()
+            .map(|(label, is_focused)| ActionButton {
+                label: label.into(),
+                is_focused,
+            })
+            .collect();
+        self.action_rows.push(row);
         self
     }
 
@@ -167,35 +183,40 @@ impl InspectorView {
         }
 
         // 4. Interactive Action Buttons
-        if !self.actions.is_empty() {
+        if !self.action_rows.is_empty() {
             lines.push(Line::from(Span::styled(
                 "Actions:",
                 Style::default().fg(TEXT_MUTED),
             )));
 
-            for action in &self.actions {
-                let prefix = if action.is_focused { " ▶ " } else { "   " };
-                let btn_style = if action.is_focused {
-                    Style::default()
-                        .bg(SELECTED_BG)
-                        .fg(ACCENT_YELLOW)
-                        .add_modifier(Modifier::BOLD)
-                } else {
-                    Style::default().fg(TEXT_PRIMARY)
-                };
+            for row in &self.action_rows {
+                let mut row_spans = Vec::new();
+                for (i, action) in row.iter().enumerate() {
+                    if i > 0 {
+                        row_spans.push(Span::raw("   ")); // Spacing between side-by-side buttons
+                    }
 
-                let button_line = Line::from(vec![
-                    Span::styled(
+                    let prefix = if action.is_focused { " ▶ " } else { "   " };
+                    let btn_style = if action.is_focused {
+                        Style::default()
+                            .bg(SELECTED_BG)
+                            .fg(ACCENT_YELLOW)
+                            .add_modifier(Modifier::BOLD)
+                    } else {
+                        Style::default().fg(TEXT_PRIMARY)
+                    };
+
+                    row_spans.push(Span::styled(
                         prefix,
                         if action.is_focused {
                             Style::default().fg(ACCENT_YELLOW)
                         } else {
                             Style::default().fg(TEXT_MUTED)
                         },
-                    ),
-                    Span::styled(format!("[ {} ]", action.label), btn_style),
-                ]);
-                lines.push(button_line);
+                    ));
+                    row_spans.push(Span::styled(format!("[ {} ]", action.label), btn_style));
+                }
+                lines.push(Line::from(row_spans));
             }
             lines.push(Line::from(""));
         }

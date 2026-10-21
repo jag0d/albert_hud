@@ -1,5 +1,5 @@
 title = "Stats"
-notes = "Press [j/k] or [Up/Down] to inspect each ability. Press [q] or [Esc] to quit."
+notes = "[Tab] Panels  |  [j/k/↑/↓] Navigate  |  [h/l/←/→] Actions  |  [Enter] Inspect  |  [Esc] Back/Quit"
 
 [character]
 name = "Albert, brother of Einstein"

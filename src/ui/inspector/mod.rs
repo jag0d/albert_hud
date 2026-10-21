@@ -68,13 +68,21 @@ pub fn render(f: &mut Frame, area: Rect, app: &App) {
 fn build_ability_view(app: &App) -> Option<InspectorView> {
     let ability = app.selected_ability()?;
     let mod_str = ability.display_modifier();
+    let is_focused = app.active_panel == ActivePanel::Inspector;
+    let sel = app.selected_inspector_action;
 
     let view = InspectorView::new(&ability.name)
         .badge(&ability.code)
         .stat("Base Score", format!("{}", ability.score))
         .stat_accent("Modifier", &mod_str)
-        .action(format!("🎲 Roll Check (1d20 {})", mod_str), false)
-        .action(format!("🛡 Roll Saving Throw (1d20 {})", mod_str), false)
+        .action(
+            format!("🎲 Roll Check (1d20 {})", mod_str),
+            is_focused && sel == 0,
+        )
+        .action(
+            format!("🛡 Roll Saving Throw (1d20 {})", mod_str),
+            is_focused && sel == 1,
+        )
         .section("Rules & Usage:", &ability.description);
 
     Some(view)
@@ -82,12 +90,14 @@ fn build_ability_view(app: &App) -> Option<InspectorView> {
 
 fn build_battle_view(app: &App) -> Option<InspectorView> {
     let combat = &app.abilities_doc.combat;
+    let is_focused = app.active_panel == ActivePanel::Inspector;
+    let sel = app.selected_inspector_action;
 
     let view = match app.selected_battle_stat() {
         0 => InspectorView::new("Armor Class")
             .badge("AC")
             .stat("Total AC", format!("{}", combat.armor_class))
-            .action("🛡 Adjust AC", false)
+            .action("🛡 Adjust AC", is_focused && sel == 0)
             .section(
                 "Rules & Combat Mechanics:",
                 "An attacker's d20 attack roll must meet or exceed your Armor Class to hit. AC is determined by your equipped armor, shield, and Dexterity modifier.",
@@ -95,7 +105,10 @@ fn build_battle_view(app: &App) -> Option<InspectorView> {
         1 => InspectorView::new("Initiative")
             .badge("Turn Order")
             .stat_accent("Bonus", combat.initiative_display())
-            .action(format!("⚡ Roll Initiative (1d20 {})", combat.initiative_display()), false)
+            .action(
+                format!("⚡ Roll Initiative (1d20 {})", combat.initiative_display()),
+                is_focused && sel == 0,
+            )
             .section(
                 "Rules & Combat Mechanics:",
                 "At the start of battle, each combatant rolls 1d20 + Initiative modifier to determine turn order. The highest initiative takes action first.",
@@ -103,7 +116,7 @@ fn build_battle_view(app: &App) -> Option<InspectorView> {
         2 => InspectorView::new("Speed")
             .badge("Tactical Movement")
             .stat("Base Movement", combat.speed_display())
-            .action("👟 Dash (Double Movement)", false)
+            .action("👟 Dash (Double Movement)", is_focused && sel == 0)
             .section(
                 "Rules & Combat Mechanics:",
                 "The distance in feet you can move on your turn in combat. Dwarf racial trait ensures your speed is not reduced by heavy armor.",
@@ -113,8 +126,10 @@ fn build_battle_view(app: &App) -> Option<InspectorView> {
             .stat("Current", format!("{}", combat.hp_current))
             .stat("Max", format!("{}", combat.hp_max))
             .stat_accent("Temp", format!("{}", combat.hp_temp))
-            .action("🩹 Take Damage", false)
-            .action("💚 Heal", false)
+            .action_row(vec![
+                ("🩹 Take Damage", is_focused && sel == 0),
+                ("💚 Heal", is_focused && sel == 1),
+            ])
             .section(
                 "Rules & Combat Mechanics:",
                 "Format: 'temporary current/maximum'. Hit Points represent physical and mental stamina, will to live, and luck. Temporary HP buffers incoming damage before current HP is lost. When current HP drops to 0, you fall unconscious and must make death saves.",
@@ -131,6 +146,9 @@ fn build_menu_view(app: &App) -> Option<InspectorView> {
         .copied()
         .unwrap_or("Menu");
 
+    let is_focused = app.active_panel == ActivePanel::Inspector;
+    let sel = app.selected_inspector_action;
+
     let (badge, desc) = match item_name {
         "Skills" => ("Proficiencies", "List of all 18 core D&D 5e skills with associated ability scores and calculated bonuses."),
         "Saving Throws" => ("Defense", "Defensive rolls to resist spells, poisons, traps, and environmental hazards."),
@@ -141,7 +159,7 @@ fn build_menu_view(app: &App) -> Option<InspectorView> {
 
     let view = InspectorView::new(item_name)
         .badge(badge)
-        .action("↵ Open Details", false)
+        .action("↵ Open Details", is_focused && sel == 0)
         .section("Overview:", desc);
 
     Some(view)

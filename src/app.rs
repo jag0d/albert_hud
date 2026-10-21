@@ -27,6 +27,7 @@ pub struct App {
     pub prev_active_panel: ActivePanel,
     pub selected_menu_index: usize,
     pub selected_battle_index: usize,
+    pub selected_inspector_action: usize,
 }
 
 impl App {
@@ -39,6 +40,7 @@ impl App {
             prev_active_panel: ActivePanel::Stats,
             selected_menu_index: 0,
             selected_battle_index: 0,
+            selected_inspector_action: 0,
         }
     }
 
@@ -88,7 +90,34 @@ impl App {
         if self.active_panel != ActivePanel::Inspector {
             self.prev_active_panel = self.active_panel;
             self.active_panel = ActivePanel::Inspector;
+            self.selected_inspector_action = 0;
         }
+    }
+
+    pub fn inspector_action_count(&self) -> usize {
+        let target_panel = match self.active_panel {
+            ActivePanel::Inspector => self.prev_active_panel,
+            other => other,
+        };
+        match target_panel {
+            ActivePanel::Stats => 2,
+            ActivePanel::InBattle => match self.selected_battle_index {
+                3 => 2, // Hit Points: Take Damage, Heal
+                _ => 1,
+            },
+            ActivePanel::Menu => 1,
+            _ => 0,
+        }
+    }
+
+    pub fn next_inspector_action(&mut self) {
+        let count = self.inspector_action_count();
+        self.selected_inspector_action = cycle_next(self.selected_inspector_action, count);
+    }
+
+    pub fn previous_inspector_action(&mut self) {
+        let count = self.inspector_action_count();
+        self.selected_inspector_action = cycle_prev(self.selected_inspector_action, count);
     }
 
     pub fn next_panel(&mut self) {
@@ -97,6 +126,7 @@ impl App {
             self.prev_active_panel = next;
         } else {
             self.prev_active_panel = self.active_panel;
+            self.selected_inspector_action = 0;
         }
         self.active_panel = next;
     }
@@ -105,7 +135,7 @@ impl App {
         match self.active_panel {
             ActivePanel::Stats => self.next_ability(),
             ActivePanel::Menu => self.next_menu_item(),
-            ActivePanel::Inspector => self.navigate_inspector(),
+            ActivePanel::Inspector => self.next_inspector_action(),
             ActivePanel::InBattle => self.next_battle_stat(),
         }
     }
@@ -114,8 +144,20 @@ impl App {
         match self.active_panel {
             ActivePanel::Stats => self.previous_ability(),
             ActivePanel::Menu => self.previous_menu_item(),
-            ActivePanel::Inspector => self.navigate_inspector(),
+            ActivePanel::Inspector => self.previous_inspector_action(),
             ActivePanel::InBattle => self.previous_battle_stat(),
+        }
+    }
+
+    pub fn navigate_left(&mut self) {
+        if self.active_panel == ActivePanel::Inspector {
+            self.previous_inspector_action();
+        }
+    }
+
+    pub fn navigate_right(&mut self) {
+        if self.active_panel == ActivePanel::Inspector {
+            self.next_inspector_action();
         }
     }
 }
