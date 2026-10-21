@@ -340,3 +340,80 @@ fn cycle_prev(current: usize, count: usize) -> usize {
         current - 1
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn create_test_app() -> App {
+        let doc = AbilitiesDoc::load_from_str(AbilitiesDoc::DEFAULT_TOML).unwrap();
+        // Use a temp path so tests don't overwrite abilities.toml
+        App::new(doc, "/tmp/albert_hud_test_abilities.toml")
+    }
+
+    #[test]
+    fn test_edit_ability_score_valid() {
+        let mut app = create_test_app();
+        assert_eq!(app.abilities_doc.abilities[0].score, 10);
+        assert_eq!(app.abilities_doc.abilities[0].display_modifier(), "+0");
+
+        app.start_editing(EditableField::AbilityScore(0));
+        assert_eq!(app.input_mode, InputMode::Editing {
+            field: EditableField::AbilityScore(0),
+            buffer: "10".to_string(),
+        });
+
+        app.edit_backspace();
+        app.edit_backspace();
+        app.edit_char('1');
+        app.edit_char('6');
+        app.confirm_editing();
+
+        assert_eq!(app.input_mode, InputMode::Normal);
+        assert_eq!(app.abilities_doc.abilities[0].score, 16);
+        assert_eq!(app.abilities_doc.abilities[0].display_modifier(), "+3");
+    }
+
+    #[test]
+    fn test_edit_ability_score_invalid_empty_leaves_value_unchanged() {
+        let mut app = create_test_app();
+        assert_eq!(app.abilities_doc.abilities[0].score, 10);
+
+        app.start_editing(EditableField::AbilityScore(0));
+        app.edit_backspace();
+        app.edit_backspace(); // Buffer is now empty
+        app.confirm_editing();
+
+        assert_eq!(app.input_mode, InputMode::Normal);
+        assert_eq!(app.abilities_doc.abilities[0].score, 10);
+    }
+
+    #[test]
+    fn test_cancel_editing_leaves_value_unchanged() {
+        let mut app = create_test_app();
+        assert_eq!(app.abilities_doc.abilities[0].score, 10);
+
+        app.start_editing(EditableField::AbilityScore(0));
+        app.edit_char('9');
+        app.cancel_editing();
+
+        assert_eq!(app.input_mode, InputMode::Normal);
+        assert_eq!(app.abilities_doc.abilities[0].score, 10);
+    }
+
+    #[test]
+    fn test_edit_armor_class() {
+        let mut app = create_test_app();
+        assert_eq!(app.abilities_doc.combat.armor_class, 18);
+
+        app.start_editing(EditableField::ArmorClass);
+        app.edit_backspace();
+        app.edit_backspace();
+        app.edit_char('2');
+        app.edit_char('0');
+        app.confirm_editing();
+
+        assert_eq!(app.input_mode, InputMode::Normal);
+        assert_eq!(app.abilities_doc.combat.armor_class, 20);
+    }
+}

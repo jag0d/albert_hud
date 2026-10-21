@@ -89,4 +89,18 @@ impl AbilitiesDoc {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_roundtrip_toml() {
+        let original = AbilitiesDoc::DEFAULT_TOML;
+        let doc = AbilitiesDoc::load_from_str(original).expect("Failed to load DEFAULT_TOML");
+        let serialized = toml::to_string_pretty(&doc).expect("Failed to serialize");
+        let doc2 = AbilitiesDoc::load_from_str(&serialized).expect("Failed to reload serialized TOML");
+        assert_eq!(doc.character.name, doc2.character.name);
+        assert_eq!(doc.abilities.len(), doc2.abilities.len());
+        assert_eq!(doc.combat.armor_class, doc2.combat.armor_class);
+    }
 }
