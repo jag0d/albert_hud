@@ -1,4 +1,5 @@
 title = "Stats"
+description = ""
 notes = "[Tab] Panels  |  [j/k/↑/↓] Navigate  |  [h/l/←/→] Actions  |  [Enter] Inspect  |  [Esc] Back/Quit"
 
 [character]
@@ -13,7 +14,7 @@ background = "Sailor"
 alignment = "Chaotic Neutral"
 
 [combat]
-armor_class = 18
+armor_class = 19
 initiative = 2
 speed = 25
 hp_current = 44
@@ -23,8 +24,8 @@ hp_temp = 0
 [[abilities]]
 name = "Strength"
 code = "STR"
-score = 10
-modifier = "+0"
+score = 14
+modifier = "+2"
 description = "Athletics, carrying capacity, physical push and pull."
 
 [[abilities]]
