@@ -13,6 +13,80 @@ pub enum EditableField {
     HpTemp,
 }
 
+impl EditableField {
+    pub fn get_value(&self, doc: &AbilitiesDoc) -> Option<i32> {
+        match self {
+            Self::AbilityScore(idx) => doc.abilities.get(*idx).map(|a| a.score),
+            Self::ArmorClass => Some(doc.combat.armor_class),
+            Self::Initiative => Some(doc.combat.initiative),
+            Self::Speed => Some(doc.combat.speed),
+            Self::HpCurrent => Some(doc.combat.hp_current),
+            Self::HpMax => Some(doc.combat.hp_max),
+            Self::HpTemp => Some(doc.combat.hp_temp),
+        }
+    }
+
+    pub fn set_value(&self, doc: &mut AbilitiesDoc, val: i32) {
+        match self {
+            Self::AbilityScore(idx) => {
+                if let Some(ability) = doc.abilities.get_mut(*idx) {
+                    ability.score = val;
+                    let m = ability.calc_modifier();
+                    ability.modifier = Some(if m >= 0 {
+                        format!("+{}", m)
+                    } else {
+                        format!("{}", m)
+                    });
+                }
+            }
+            Self::ArmorClass => doc.combat.armor_class = val,
+            Self::Initiative => doc.combat.initiative = val,
+            Self::Speed => doc.combat.speed = val,
+            Self::HpCurrent => doc.combat.hp_current = val,
+            Self::HpMax => doc.combat.hp_max = val,
+            Self::HpTemp => doc.combat.hp_temp = val,
+        }
+    }
+
+    pub fn label(&self, doc: &AbilitiesDoc) -> String {
+        match self {
+            Self::AbilityScore(idx) => doc
+                .abilities
+                .get(*idx)
+                .map(|a| format!("{} Base Score", a.name))
+                .unwrap_or_else(|| "Base Score".to_string()),
+            Self::ArmorClass => "Armor Class".to_string(),
+            Self::Initiative => "Initiative".to_string(),
+            Self::Speed => "Speed".to_string(),
+            Self::HpCurrent => "Current HP".to_string(),
+            Self::HpMax => "Max HP".to_string(),
+            Self::HpTemp => "Temp HP".to_string(),
+        }
+    }
+
+    pub fn matches(&self, target_panel: ActivePanel, app: &App) -> bool {
+        match (self, target_panel) {
+            (EditableField::AbilityScore(idx), ActivePanel::Stats) => *idx == app.selected_index,
+            (EditableField::ArmorClass, ActivePanel::InBattle) => app.selected_battle_index == 0,
+            (EditableField::Initiative, ActivePanel::InBattle) => app.selected_battle_index == 1,
+            (EditableField::Speed, ActivePanel::InBattle) => app.selected_battle_index == 2,
+            (
+                EditableField::HpCurrent | EditableField::HpMax | EditableField::HpTemp,
+                ActivePanel::InBattle,
+            ) => app.selected_battle_index == 3,
+            _ => false,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum InputMode {
+    Normal,
+    Editing {
+        field: EditableField,
+        buffer: String,
+    },
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ActivePanel {
