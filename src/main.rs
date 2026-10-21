@@ -36,25 +36,40 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         match events.next()? {
             Event::Key(key_event) => {
-                match key_event.code {
-                    KeyCode::Char('q') => app.quit(),
-                    KeyCode::Esc => {
-                        if app.active_panel == ActivePanel::Inspector {
-                            app.active_panel = app.prev_active_panel;
-                        } else {
-                            app.quit();
+                match app.input_mode {
+                    app::InputMode::Normal => match key_event.code {
+                        KeyCode::Char('q') => app.quit(),
+                        KeyCode::Esc => {
+                            if app.active_panel == ActivePanel::Inspector {
+                                app.active_panel = app.prev_active_panel;
+                            } else {
+                                app.quit();
+                            }
                         }
-                    }
-                    KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
-                        app.quit()
-                    }
-                    KeyCode::Tab => app.next_panel(),
-                    KeyCode::Up | KeyCode::Char('k') => app.navigate_previous(),
-                    KeyCode::Down | KeyCode::Char('j') => app.navigate_next(),
-                    KeyCode::Left | KeyCode::Char('h') => app.navigate_left(),
-                    KeyCode::Right | KeyCode::Char('l') => app.navigate_right(),
-                    KeyCode::Enter => { if app.active_panel != ActivePanel::Inspector { app.navigate_inspector(); } },
-                    _ => {}
+                        KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                            app.quit()
+                        }
+                        KeyCode::Tab => app.next_panel(),
+                        KeyCode::Up | KeyCode::Char('k') => app.navigate_previous(),
+                        KeyCode::Down | KeyCode::Char('j') => app.navigate_next(),
+                        KeyCode::Left | KeyCode::Char('h') => app.navigate_left(),
+                        KeyCode::Right | KeyCode::Char('l') => app.navigate_right(),
+                        KeyCode::Enter => {
+                            if app.active_panel == ActivePanel::Inspector {
+                                app.execute_inspector_action();
+                            } else {
+                                app.navigate_inspector();
+                            }
+                        }
+                        _ => {}
+                    },
+                    app::InputMode::Editing { .. } => match key_event.code {
+                        KeyCode::Esc => app.cancel_editing(),
+                        KeyCode::Enter => app.confirm_editing(),
+                        KeyCode::Backspace => app.edit_backspace(),
+                        KeyCode::Char(c) => app.edit_char(c),
+                        _ => {}
+                    },
                 }
             }
             Event::Tick => {}

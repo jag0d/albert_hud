@@ -201,8 +201,70 @@ impl App {
             _ => 0,
         }
     }
+
+    pub fn start_editing(&mut self, field: EditableField) {
+        if let Some(val) = field.get_value(&self.abilities_doc) {
+            self.input_mode = InputMode::Editing {
+                field,
+                buffer: val.to_string(),
+            };
+        }
+    }
+
+    pub fn cancel_editing(&mut self) {
+        self.input_mode = InputMode::Normal;
+    }
+
+    pub fn confirm_editing(&mut self) {
+        if let InputMode::Editing { field, ref buffer } = self.input_mode {
+            if let Ok(val) = buffer.trim().parse::<i32>() {
+                // Ensure number is within reasonable non-overflow bounds (-9999..=9999)
+                if (-9999..=9999).contains(&val) {
+                    field.set_value(&mut self.abilities_doc, val);
+                    let _ = self.save_to_file();
+                }
+            }
+        }
+        self.input_mode = InputMode::Normal;
+    }
+
+    pub fn edit_backspace(&mut self) {
+        if let InputMode::Editing { ref mut buffer, .. } = self.input_mode {
+            buffer.pop();
+        }
+    }
+
+    pub fn edit_char(&mut self, c: char) {
+        if let InputMode::Editing { ref mut buffer, .. } = self.input_mode {
+            let is_minus_at_start = c == '-' && buffer.is_empty();
+            if (c.is_ascii_digit() || is_minus_at_start) && buffer.len() < 5 {
+                buffer.push(c);
+            }
+        }
+    }
+
     pub fn save_to_file(&self) -> Result<(), Box<dyn std::error::Error>> {
         self.abilities_doc.save_to_file(&self.file_path)
+    }
+
+    pub fn execute_inspector_action(&mut self) {
+        let target_panel = match self.active_panel {
+            ActivePanel::Inspector => self.prev_active_panel,
+            other => other,
+        };
+        match target_panel {
+            ActivePanel::Stats => {
+                if self.selected_inspector_action == 2 {
+                    self.start_editing(EditableField::AbilityScore(self.selected_index));
+                }
+            }
+            ActivePanel::InBattle => {
+                if self.selected_battle_index == 0 && self.selected_inspector_action == 0 {
+                    self.start_editing(EditableField::ArmorClass);
+                }
+            }
+            _ => {}
+        }
     }
 
     pub fn next_inspector_action(&mut self) {
