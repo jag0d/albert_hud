@@ -3,6 +3,7 @@ pub mod footer;
 pub mod header;
 pub mod inspector;
 pub mod menu;
+pub mod modal;
 pub mod stats;
 
 use crate::app::App;
@@ -61,6 +62,11 @@ pub fn render(f: &mut Frame, app: &App) {
 
     // 3. Footer
     footer::render(f, v_chunks[2], app);
+
+    // 4. Modal Overlays
+    if let crate::app::InputMode::DamageModal(ref state) = app.input_mode {
+        modal::render_damage_modal(f, state, app);
+    }
 }
 
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
