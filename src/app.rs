@@ -249,6 +249,39 @@ impl App {
         self.pending_damage.clear();
     }
 
+    pub fn open_damage_modal(&mut self) {
+        self.input_mode = InputMode::DamageModal(DamageModalState::new());
+    }
+
+    pub fn cancel_modal(&mut self) {
+        self.input_mode = InputMode::Normal;
+    }
+
+    pub fn confirm_damage_modal(&mut self) {
+        if let InputMode::DamageModal(ref state) = self.input_mode {
+            if let Ok(amount) = state.amount_buffer.trim().parse::<i32>() {
+                if amount > 0 && amount <= 9999 {
+                    self.add_damage_instance(amount);
+                }
+            }
+        }
+        self.input_mode = InputMode::Normal;
+    }
+
+    pub fn modal_backspace(&mut self) {
+        if let InputMode::DamageModal(ref mut state) = self.input_mode {
+            state.amount_buffer.pop();
+        }
+    }
+
+    pub fn modal_char(&mut self, c: char) {
+        if let InputMode::DamageModal(ref mut state) = self.input_mode {
+            if c.is_ascii_digit() && state.amount_buffer.len() < 4 {
+                state.amount_buffer.push(c);
+            }
+        }
+    }
+
     pub fn confirm_pending_damage(&mut self) {
         let total_dmg = self.total_pending_damage();
         if total_dmg <= 0 {
