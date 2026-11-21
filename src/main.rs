@@ -70,6 +70,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         KeyCode::Char(c) => app.edit_char(c),
                         _ => {}
                     },
+                    app::InputMode::DamageModal(_) => match key_event.code {
+                        KeyCode::Esc => app.cancel_modal(),
+                        KeyCode::Enter => app.confirm_damage_modal(),
+                        KeyCode::Backspace => app.modal_backspace(),
+                        KeyCode::Char(c) => app.modal_char(c),
+                        _ => {}
+                    },
                 }
             }
             Event::Tick => {}
