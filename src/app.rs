@@ -79,6 +79,36 @@ impl EditableField {
     }
 }
 
+/// A single instance of incoming damage buffered for resolution.
+/// Designed for future expansion with damage types (e.g. Slashing, Fire),
+/// resistances, vulnerabilities, and damage sources.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DamageInstance {
+    pub amount: i32,
+    // Future expansion hooks:
+    // pub damage_type: Option<String>,
+    // pub source: Option<String>,
+}
+
+/// State for the Take Damage pop-up modal dialog.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DamageModalState {
+    pub amount_buffer: String,
+    // Future expansion hooks:
+    // pub damage_type: Option<String>,
+    // pub is_critical: bool,
+    // pub is_resistant: bool,
+    // pub is_vulnerable: bool,
+}
+
+impl DamageModalState {
+    pub fn new() -> Self {
+        Self {
+            amount_buffer: String::new(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InputMode {
     Normal,
@@ -86,6 +116,7 @@ pub enum InputMode {
         field: EditableField,
         buffer: String,
     },
+    DamageModal(DamageModalState),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -118,6 +149,7 @@ pub struct App {
     pub selected_battle_index: usize,
     pub selected_inspector_action: usize,
     pub input_mode: InputMode,
+    pub pending_damage: Vec<DamageInstance>,
 }
 
 impl App {
@@ -133,6 +165,7 @@ impl App {
             selected_battle_index: 0,
             selected_inspector_action: 0,
             input_mode: InputMode::Normal,
+            pending_damage: Vec::new(),
         }
     }
 
