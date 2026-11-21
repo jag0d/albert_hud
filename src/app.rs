@@ -235,6 +235,20 @@ impl App {
         }
     }
 
+    pub fn total_pending_damage(&self) -> i32 {
+        self.pending_damage.iter().map(|d| d.amount).sum()
+    }
+
+    pub fn add_damage_instance(&mut self, amount: i32) {
+        if amount > 0 {
+            self.pending_damage.push(DamageInstance { amount });
+        }
+    }
+
+    pub fn clear_pending_damage(&mut self) {
+        self.pending_damage.clear();
+    }
+
     pub fn start_editing(&mut self, field: EditableField) {
         if let Some(val) = field.get_value(&self.abilities_doc) {
             self.input_mode = InputMode::Editing {
