@@ -133,19 +133,57 @@ fn build_battle_view(app: &App) -> Option<InspectorView> {
                 "Rules & Combat Mechanics:",
                 "The distance in feet you can move on your turn in combat. Dwarf racial trait ensures your speed is not reduced by heavy armor.",
             ),
-        3 => InspectorView::new("Hit Points")
-            .badge("HP")
-            .stat("Current", format!("{}", combat.hp_current))
-            .stat("Max", format!("{}", combat.hp_max))
-            .stat_accent("Temp", format!("{}", combat.hp_temp))
-            .action_row(vec![
-                ("🩹 Take Damage", is_focused && sel == 0),
-                ("💚 Heal", is_focused && sel == 1),
-            ])
-            .section(
+        3 => {
+            let pending = app.total_pending_damage();
+            let pending_str = if pending > 0 {
+                format!("-{}", pending)
+            } else {
+                "0".to_string()
+            };
+
+            let mut view = InspectorView::new("Hit Points")
+                .badge("HP")
+                .stat("Current", format!("{}", combat.hp_current))
+                .stat("Max", format!("{}", combat.hp_max))
+                .stat_accent("Temp", format!("{}", combat.hp_temp))
+                .stat_accent("Pending Dmg", pending_str);
+
+            let confirm_label = if pending > 0 {
+                format!("💥 Confirm Damage (-{} HP)", pending)
+            } else {
+                "💥 Confirm Damage".to_string()
+            };
+
+            view = view
+                .action_row(vec![
+                    ("🩹 Take Damage", is_focused && sel == 0),
+                    ("💚 Heal", is_focused && sel == 1),
+                ])
+                .action_row(vec![
+                    (confirm_label.as_str(), is_focused && sel == 2),
+                    ("🔄 Clear Buffer", is_focused && sel == 3),
+                ]);
+
+            if !app.pending_damage.is_empty() {
+                let breakdown: Vec<String> = app
+                    .pending_damage
+                    .iter()
+                    .enumerate()
+                    .map(|(i, d)| format!("Hit {}: {} dmg", i + 1, d.amount))
+                    .collect();
+                let summary = format!(
+                    "Total pending: -{} HP ({}). Select 'Confirm Damage' to apply.",
+                    pending,
+                    breakdown.join(", ")
+                );
+                view = view.section("Pending Hits:", summary);
+            }
+
+            view.section(
                 "Rules & Combat Mechanics:",
                 "Format: 'temporary current/maximum'. Hit Points represent physical and mental stamina, will to live, and luck. Temporary HP buffers incoming damage before current HP is lost. When current HP drops to 0, you fall unconscious and must make death saves.",
-            ),
+            )
+        }
         _ => return None,
     };
 
