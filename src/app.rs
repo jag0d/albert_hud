@@ -480,8 +480,14 @@ mod tests {
     use super::*;
 
     fn create_test_app() -> App {
-        let doc = AbilitiesDoc::load_from_str(AbilitiesDoc::DEFAULT_TOML).unwrap();
-        // Use a temp path so tests don't overwrite abilities.toml
+        let mut doc = AbilitiesDoc::load_from_str(AbilitiesDoc::DEFAULT_TOML).unwrap();
+        // Set deterministic test baseline
+        doc.abilities[0].score = 10;
+        doc.abilities[0].modifier = Some("+0".to_string());
+        doc.combat.armor_class = 18;
+        doc.combat.hp_current = 40;
+        doc.combat.hp_max = 40;
+        doc.combat.hp_temp = 5;
         App::new(doc, "/tmp/albert_hud_test_abilities.toml")
     }
 
@@ -549,5 +555,75 @@ mod tests {
 
         assert_eq!(app.input_mode, InputMode::Normal);
         assert_eq!(app.abilities_doc.combat.armor_class, 20);
+    }
+
+    #[test]
+    fn test_damage_modal_workflow() {
+        let mut app = create_test_app();
+        assert_eq!(app.total_pending_damage(), 0);
+
+        app.open_damage_modal();
+        assert!(matches!(app.input_mode, InputMode::DamageModal(_)));
+
+        app.modal_char('1');
+        app.modal_char('2');
+        app.confirm_damage_modal();
+
+        assert_eq!(app.input_mode, InputMode::Normal);
+        assert_eq!(app.total_pending_damage(), 12);
+        assert_eq!(app.pending_damage.len(), 1);
+        assert_eq!(app.pending_damage[0].amount, 12);
+    }
+
+    #[test]
+    fn test_confirm_damage_with_temp_hp_and_current_hp() {
+        let mut app = create_test_app();
+        // Baseline: hp_current = 40, hp_temp = 5
+        app.add_damage_instance(8); // Hit 1: 8 dmg
+        app.add_damage_instance(4); // Hit 2: 4 dmg, Total: 12 dmg
+
+        assert_eq!(app.total_pending_damage(), 12);
+
+        app.confirm_pending_damage();
+
+        // 12 damage: 5 absorbed by temp_hp (becomes 0), 7 subtracted from hp_current (40 - 7 = 33)
+        assert_eq!(app.abilities_doc.combat.hp_temp, 0);
+        assert_eq!(app.abilities_doc.combat.hp_current, 33);
+        assert_eq!(app.total_pending_damage(), 0);
+        assert!(app.pending_damage.is_empty());
+    }
+
+    #[test]
+    fn test_confirm_damage_clamps_to_zero() {
+        let mut app = create_test_app();
+        app.abilities_doc.combat.hp_temp = 0;
+        app.abilities_doc.combat.hp_current = 10;
+
+        app.add_damage_instance(25);
+        app.confirm_pending_damage();
+
+        assert_eq!(app.abilities_doc.combat.hp_current, 0);
+    }
+
+    #[test]
+    fn test_clear_pending_damage() {
+        let mut app = create_test_app();
+        app.add_damage_instance(15);
+        assert_eq!(app.total_pending_damage(), 15);
+
+        app.clear_pending_damage();
+        assert_eq!(app.total_pending_damage(), 0);
+        assert_eq!(app.abilities_doc.combat.hp_current, 40); // unchanged
+    }
+
+    #[test]
+    fn test_cancel_damage_modal() {
+        let mut app = create_test_app();
+        app.open_damage_modal();
+        app.modal_char('9');
+        app.cancel_modal();
+
+        assert_eq!(app.input_mode, InputMode::Normal);
+        assert_eq!(app.total_pending_damage(), 0);
     }
 }
