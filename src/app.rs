@@ -249,6 +249,47 @@ impl App {
         self.pending_damage.clear();
     }
 
+    pub fn confirm_pending_damage(&mut self) {
+        let total_dmg = self.total_pending_damage();
+        if total_dmg <= 0 {
+            return;
+        }
+
+        let mut remaining = total_dmg;
+
+        // 1. Temporary HP absorbs incoming damage first
+        if self.abilities_doc.combat.hp_temp > 0 {
+            if self.abilities_doc.combat.hp_temp >= remaining {
+                self.abilities_doc.combat.hp_temp -= remaining;
+                remaining = 0;
+            } else {
+                remaining -= self.abilities_doc.combat.hp_temp;
+                self.abilities_doc.combat.hp_temp = 0;
+            }
+        }
+
+        // 2. Remaining damage reduces current HP
+        if remaining > 0 {
+            if self.abilities_doc.combat.hp_current > remaining {
+                self.abilities_doc.combat.hp_current -= remaining;
+            } else {
+                self.abilities_doc.combat.hp_current = 0;
+                self.handle_zero_hp();
+            }
+        }
+
+        // 3. Clear the pending damage buffer
+        self.pending_damage.clear();
+
+        // 4. Save updated stats to file
+        let _ = self.save_to_file();
+    }
+
+    pub fn handle_zero_hp(&mut self) {
+        // Hook for future expansion:
+        // Unconscious status condition, death saving throws, massive damage instant death checks.
+    }
+
     pub fn start_editing(&mut self, field: EditableField) {
         if let Some(val) = field.get_value(&self.abilities_doc) {
             self.input_mode = InputMode::Editing {
