@@ -17,6 +17,10 @@ pub fn render(f: &mut Frame, area: Rect, app: &App) {
             "Edit Mode: ",
             "[0-9] Type value  |  [Backspace] Delete  |  [Enter] Confirm & Save  |  [Esc] Cancel",
         ),
+        crate::app::InputMode::DamageModal(_) => (
+            "Take Damage: ",
+            "[0-9] Enter damage amount  |  [Backspace] Delete  |  [Enter] Add to Buffer  |  [Esc] Cancel",
+        ),
         crate::app::InputMode::Normal => (
             "Controls: ",
             app.abilities_doc
