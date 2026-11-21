@@ -227,7 +227,7 @@ impl App {
         match target_panel {
             ActivePanel::Stats => 3, // Roll Check, Saving Throw, Change Base Score
             ActivePanel::InBattle => match self.selected_battle_index {
-                3 => 2, // Hit Points: Take Damage, Heal
+                3 => 4, // Hit Points: Take Damage, Heal, Confirm Damage, Clear Buffer
                 _ => 1,
             },
             ActivePanel::Menu => 1,
@@ -380,8 +380,21 @@ impl App {
                 }
             }
             ActivePanel::InBattle => {
-                if self.selected_battle_index == 0 && self.selected_inspector_action == 0 {
-                    self.start_editing(EditableField::ArmorClass);
+                match self.selected_battle_index {
+                    0 => {
+                        if self.selected_inspector_action == 0 {
+                            self.start_editing(EditableField::ArmorClass);
+                        }
+                    }
+                    3 => {
+                        match self.selected_inspector_action {
+                            0 => self.open_damage_modal(),
+                            2 => self.confirm_pending_damage(),
+                            3 => self.clear_pending_damage(),
+                            _ => {}
+                        }
+                    }
+                    _ => {}
                 }
             }
             _ => {}
